@@ -2,12 +2,18 @@
 
 //importaciones
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+
+interface Especialidad{
+    description:string;
+    id:number;    
+    _links: Record<string, {href:string}>
+}
 
 //crear la funcion
 
 const PlusIcon= ()=>{
-
+    const [especialidades, setEspecialidades]= useState<Especialidad[]>([])
     const [abierto, setAbierto]= useState(false)
     const [datosFormulario, setDatosFormulario]=useState(
         {            
@@ -59,6 +65,24 @@ const PlusIcon= ()=>{
         }
     }
 
+    useEffect(
+        ()=>{
+            const fetchPrograms= async()=>{
+                try{
+                    const response=await fetch("http://localhost:9090/especialidades")
+                    const data=await response.json()
+                    setEspecialidades(data._embedded.especialidades)
+
+                }catch(error){
+                    console.error(error)
+                }
+            };
+            
+            fetchPrograms();
+            
+        },[]
+    )
+    
     //estructura JSX del componente
     return (
         <div>
@@ -106,6 +130,17 @@ const PlusIcon= ()=>{
                         placeholder="N° de Consultorio"
                         onChange={cambiarValor}
                     />
+                    <select name="especialidad">
+                        <option key="0" value="">Seleccione un programa </option>
+                        {
+                            especialidades.map(
+                                (especialidad)=>(                            
+                                    <option key={especialidad.id} value={especialidad._links.especialidad.href}>
+                                        {especialidad.description}
+                                    </option>
+                                    ))                    
+                        }
+                    </select>
                     {/* <button type="submit"> Guardar </button> */}
                     <button type="submit" className="focus:outline-none text-white bg-green-400 hover:bg-green-500 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:focus:ring-green-900"> Guardar </button>
                 </form>
